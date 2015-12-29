@@ -137,7 +137,9 @@ HiBenchEnvPropMapping=dict(
     # sparkstreaming
     STREAMINGBENCH_JARS="hibench.streamingbench.jars",
     STREAMBENCH_STORM_JAR="hibench.streamingbench.stormbench.jar",
+    STREAMBENCH_FLINK_JAR="hibench.streamingbench.flinkbench.jar",
     STORM_BIN_HOME="hibench.streamingbench.storm.bin",
+    FLINK_BIN_HOME="hibench.streamingbench.flink.bin",
     STREAMING_BENCHNAME="hibench.streamingbench.benchname",
 
     # samza

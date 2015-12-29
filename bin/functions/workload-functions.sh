@@ -280,6 +280,9 @@ function run-storm-job(){
     execute_withlog $CMD
 }
 
+function run-flink-job(){
+ CMD="${FLINK_BIN_HOME}/flink run ${STREAMBENCH_STORM_JAR} $@"
+}
 function run-hadoop-job(){
     ENABLE_MONITOR=1
     if [ "$1" = "--without-monitor" ]; then

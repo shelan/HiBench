@@ -18,14 +18,20 @@
 
 package com.intel.hibench.streambench.flink.micro;
 
+import com.intel.hibench.streambench.flink.util.FlinkBenchConfig;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.examples.java.wordcount.util.WordCountData;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer082;
 import org.apache.flink.streaming.util.serialization.SimpleStringSchema;
 import org.apache.flink.util.Collector;
+import scala.xml.PrettyPrinter;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This example shows an implementation of WordCount without using the Tuple2
@@ -56,6 +62,7 @@ public class WordCount {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         ParameterTool params = ParameterTool.fromArgs(args);
+
         // get input data
         DataStream<String> text = getKafkaDataStream(env, params);
 
@@ -72,9 +79,38 @@ public class WordCount {
         }
 */
 
-        counts.print();
+        counts.writeAsText("output", FileSystem.WriteMode.OVERWRITE);
         // execute program
-        env.execute("WordCount Pojo Example");
+        env.execute("WordCount");
+    }
+
+
+    public void run(FlinkBenchConfig config) throws Exception {
+
+        Map configMap = new HashMap();
+        configMap.put("zookeeper.connect", config.zookeeperConnect);
+        configMap.put("group.id", config.groupId);
+        configMap.put("bootstrap.servers", config.kafkaBrokers);
+        configMap.put("topic", config.kafkaTopic);
+
+
+        // set up the execution environment
+        final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+
+        ParameterTool params = ParameterTool.fromMap(configMap);
+
+        // get input data
+        DataStream<String> text = getKafkaDataStream(env, params);
+
+        DataStream<Word> counts =
+                // split up the lines into Word objects
+                text.flatMap(new Tokenizer())
+                        // group by the field word and sum up the frequency
+                        .keyBy("word").sum("frequency");
+
+        counts.writeAsText("output", FileSystem.WriteMode.OVERWRITE);
+        // execute program
+        env.execute("WordCount");
     }
 
     // *************************************************************************
@@ -156,31 +192,11 @@ public class WordCount {
     private static String textPath;
     private static String outputPath;
 
-    private static boolean parseParameters(String[] args) {
-
-        if (args.length > 0) {
-            // parse input arguments
-            fileOutput = true;
-            if (args.length == 2) {
-                textPath = args[0];
-                outputPath = args[1];
-            } else {
-                System.err.println("Usage: PojoExample <text path> <result path>");
-                return false;
-            }
-        } else {
-            System.out.println("Executing PojoExample example with built-in default data.");
-            System.out.println("  Provide parameters to read input data from a file.");
-            System.out.println("  Usage: PojoExample <text path> <result path>");
-        }
-        return true;
-    }
-
 
     private static DataStream<String> getKafkaDataStream(StreamExecutionEnvironment env, ParameterTool params) {
         DataStream<String> messageStream = env
                 .addSource(new FlinkKafkaConsumer082<>(
-                        "topic",
+                        "wordcount",
                         new SimpleStringSchema(),
                         params.getProperties()));
         return messageStream;
