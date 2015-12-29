@@ -282,6 +282,8 @@ function run-storm-job(){
 
 function run-flink-job(){
  CMD="${FLINK_BIN_HOME}/flink run ${STREAMBENCH_STORM_JAR} $@"
+ echo -e "${BGreen}Submit Flink Job: ${Green}$CMD${Color_Off}"
+    execute_withlog $CMD
 }
 function run-hadoop-job(){
     ENABLE_MONITOR=1
