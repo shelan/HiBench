@@ -191,7 +191,7 @@ public class WordCount {
     private static DataStream<String> getKafkaDataStream(StreamExecutionEnvironment env, ParameterTool params) {
         DataStream<String> messageStream = env
                 .addSource(new FlinkKafkaConsumer082<>(
-                        "wordcount",
+                        params.get("topic"),
                         new SimpleStringSchema(),
                         params.getProperties()));
         return messageStream;
