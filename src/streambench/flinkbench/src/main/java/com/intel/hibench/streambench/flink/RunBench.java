@@ -15,7 +15,7 @@ public class RunBench {
 
     private static void runAll(String[] args) throws Exception {
         FlinkBenchConfig flinkConfig = new FlinkBenchConfig();
-        ConfigLoader configLoader = new ConfigLoader(args[0]);
+        ConfigLoader configLoader = new ConfigLoader(args[1]);
 
         flinkConfig.zookeeperConnect = configLoader.getProperty("hibench.streamingbench.zookeeper.host");
         flinkConfig.kafkaBrokers =configLoader.getProperty("hibench.streamingbench.brokerList");

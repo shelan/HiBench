@@ -72,14 +72,9 @@ public class WordCount {
                         // group by the field word and sum up the frequency
                         .keyBy("word").sum("frequency");
 
-       /* if (fileOutput) {
-            counts.writeAsText(outputPath);
-        } else {
-            counts.print();
-        }
-*/
 
-        counts.writeAsText("output", FileSystem.WriteMode.OVERWRITE);
+        //TODO: commented because other benchmarks do not write the output. Check if there is anyother option.
+        //counts.writeAsText("output", FileSystem.WriteMode.OVERWRITE);
         // execute program
         env.execute("WordCount");
     }
